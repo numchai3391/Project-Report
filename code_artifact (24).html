@@ -1,0 +1,1222 @@
+<!doctype html>
+<html lang="th" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบสรุปผลการดำเนินโครงการ/กิจกรรม แบบย่อ ของโรงเรียนแม่จันวิทยาคม</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <style>
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background-color: #f8fafc;
+    }
+    
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 16px 24px;
+      border-radius: 12px;
+      color: white;
+      font-weight: 500;
+      z-index: 9999;
+      animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1), fadeOut 0.3s ease 2.7s forwards;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .toast-success { background: linear-gradient(135deg, #059669 0%, #10b981 100%); }
+    .toast-error { background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); }
+    .toast-warning { background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%); }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; pointer-events: none; }
+    }
+    
+    .checkbox-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 768px) { .checkbox-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .checkbox-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .checkbox-item:hover { background: #eff6ff; border-color: #bfdbfe; }
+    .checkbox-item input[type="checkbox"] { margin-top: 4px; width: 18px; height: 18px; accent-color: #3b82f6; cursor: pointer; }
+    
+    .activity-card, .achievement-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .activity-card:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+    
+    .data-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .data-table th {
+      background: #1e3a8a; color: white; padding: 14px 16px; text-align: left; font-weight: 600; font-size: 14px;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .data-table th:first-child { border-top-left-radius: 12px; }
+    .data-table th:last-child { border-top-right-radius: 12px; }
+    .data-table td { padding: 14px 16px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #f1f5f9; vertical-align: top; font-size: 14px; background: white; }
+    .data-table td:first-child { border-left: 1px solid #f1f5f9; }
+    .data-table tr:hover td { background: #f8fafc; }
+    
+    .stat-card {
+      background: white; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; text-align: center;
+    }
+    .stat-value { font-size: 2.5rem; font-weight: 700; line-height: 1; margin-bottom: 8px; }
+    .stat-label { color: #64748b; font-size: 0.95rem; font-weight: 500; }
+
+    .badge-status { padding: 6px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+    .status-success { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .status-exceed { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+    .status-fail { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    
+    .btn-base {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 10px 20px;
+      border-radius: 10px; font-weight: 600; transition: all 0.2s; cursor: pointer; border: none; font-family: 'Sarabun', sans-serif;
+    }
+    .btn-primary { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; box-shadow: 0 4px 6px -1px rgba(37,99,235,0.2); }
+    .btn-primary:hover { background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%); transform: translateY(-1px); }
+    .btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+    .btn-secondary:hover { background: #e2e8f0; color: #334155; }
+    .btn-danger { background: #ef4444; color: white; padding: 6px 12px; font-size: 13px; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-danger-lg { background: #ef4444; color: white; }
+    .btn-danger-lg:hover { background: #dc2626; }
+    .btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; box-shadow: 0 4px 6px -1px rgba(16,185,129,0.2); }
+    .btn-success:hover { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
+    .btn-word { background: #2b579a; color: white; }
+    .btn-word:hover { background: #1e3a8a; }
+    
+    .input-field {
+      width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 10px;
+      font-family: 'Sarabun', sans-serif; font-size: 15px; transition: all 0.2s; background: #fff;
+    }
+    .input-field:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+    
+    .nav-tab {
+      padding: 16px 24px; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent;
+      transition: all 0.2s; font-size: 15px; white-space: nowrap; display: flex; align-items: center; gap: 8px; color: #64748b;
+    }
+    .nav-tab:hover { background: #f8fafc; color: #1e293b; }
+    .nav-tab.active { border-bottom-color: #3b82f6; color: #2563eb; background: #eff6ff; }
+    
+    .standard-category { grid-column: 1 / -1; margin: 16px 0 8px 0; font-weight: 700; color: #1e3a8a; background-color: #e0e7ff; padding: 10px 16px; border-radius: 8px; border-left: 4px solid #3b82f6; }
+    
+    .achievement-header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 20px; border-radius: 16px 16px 0 0; margin: -24px -24px 24px -24px; }
+    
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body class="h-full flex flex-col overflow-hidden">
+
+  <header class="bg-gradient-to-r from-slate-900 via-indigo-900 to-blue-900 text-white p-4 shadow-lg flex-shrink-0 z-20">
+    <div class="flex items-center justify-between max-w-7xl mx-auto w-full">
+        <div class="flex items-center gap-4">
+            <div class="bg-white p-1 rounded-lg shadow-sm">
+                <img src="https://mwk.ac.th/wp-content/uploads/2023/11/logo-1.png" alt="Logo" class="h-12 w-auto">
+            </div>
+            <div>
+                <h1 id="appTitle" class="text-xl md:text-2xl font-bold tracking-wide">ระบบสรุปผลการดำเนินโครงการ/กิจกรรม แบบย่อ</h1>
+                <p class="text-indigo-200 text-sm opacity-90">โรงเรียนแม่จันวิทยาคม</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="window.appFunctions.loginAdmin()" class="text-slate-300 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors flex items-center gap-2" title="ตั้งค่าระบบ (Admin)">
+                <i class="ph ph-gear text-2xl"></i>
+                <span class="hidden md:inline text-sm font-medium">แอดมิน</span>
+            </button>
+        </div>
+    </div>
+  </header>
+
+  <nav class="bg-white border-b shadow-sm flex flex-shrink-0 overflow-x-auto z-10">
+    <div class="max-w-7xl mx-auto w-full flex">
+        <div class="nav-tab active" data-page="input" onclick="window.appFunctions.switchPage('input')">
+            <i class="ph ph-pencil-simple-line text-xl"></i> กรอกข้อมูลกิจกรรม
+        </div>
+        <!-- ตัดหน้าบันทึกเป้าหมายออก มารวมในหน้าผลความสำเร็จเลย -->
+        <div class="nav-tab" data-page="achievements" onclick="window.appFunctions.switchPage('achievements')">
+            <i class="ph ph-check-circle text-xl"></i> บันทึกผลความสำเร็จ
+        </div>
+        <div class="nav-tab" data-page="results" onclick="window.appFunctions.switchPage('results')">
+            <i class="ph ph-table text-xl"></i> ผลการบันทึกข้อมูล
+        </div>
+        <div class="nav-tab" data-page="summary" onclick="window.appFunctions.switchPage('summary')">
+            <i class="ph ph-presentation-chart text-xl"></i> สรุปผลสถานศึกษา
+        </div>
+        <div class="nav-tab hidden bg-slate-800 text-slate-200 hover:bg-slate-700 hover:text-white ml-auto" id="tab-admin" data-page="admin" onclick="window.appFunctions.switchPage('admin')">
+            <i class="ph ph-database text-xl"></i> ฐานข้อมูล (Admin)
+        </div>
+    </div>
+  </nav>
+
+  <main class="flex-1 overflow-hidden relative">
+    <div class="h-full overflow-y-auto p-4 md:p-8 w-full max-w-7xl mx-auto">
+        
+        <!-- Page 1: Input Form -->
+        <div id="page-input" class="page-content h-full flex flex-col animate-fade-in">
+            <div class="mb-6 bg-white p-6 rounded-2xl border border-blue-100 shadow-sm">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="current-project-code" class="block text-slate-800 font-bold text-lg mb-3 flex items-center gap-2">
+                            <i class="ph ph-barcode text-blue-600 text-2xl"></i> รหัสโครงการ <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="current-project-code" class="input-field text-lg py-3" placeholder="ระบุรหัสโครงการ">
+                    </div>
+                    <div>
+                        <label for="current-project-name" class="block text-slate-800 font-bold text-lg mb-3 flex items-center gap-2">
+                            <i class="ph ph-folder-open text-blue-600 text-2xl"></i> ชื่อโครงการ <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="current-project-name" class="input-field text-lg py-3" placeholder="ระบุชื่อโครงการหลัก (เช่น โครงการพัฒนาวิชาการกลุ่มสาระฯ)">
+                    </div>
+                </div>
+                <p class="text-slate-500 text-sm mt-3 flex items-center gap-1"><i class="ph ph-info text-blue-500"></i> ข้อมูลนี้จะใช้สำหรับจัดกลุ่มกิจกรรมทั้งหมดที่ท่านกำลังจะเพิ่มด้านล่าง</p>
+            </div>
+
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-slate-800">รายการกิจกรรมในโครงการ</h3>
+                <button class="btn-base btn-primary" onclick="window.appFunctions.addActivity()"> 
+                    <i class="ph ph-plus-circle text-xl"></i> เพิ่มกิจกรรม
+                </button>
+            </div>
+            
+            <div id="activitiesContainer" class="pb-24"></div>
+            
+            <!-- Floating Save Bar -->
+            <div class="fixed bottom-6 left-0 right-0 flex justify-center px-4 pointer-events-none z-50">
+                <div class="bg-white/90 backdrop-blur p-2 rounded-2xl shadow-xl border border-slate-200 pointer-events-auto flex gap-4">
+                     <button id="saveAllBtn" class="btn-base btn-success text-lg px-8 py-3" onclick="window.appFunctions.saveAllActivities()"> 
+                        <i class="ph ph-floppy-disk text-2xl"></i> บันทึกข้อมูลโครงการ 
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 2: Achievements -->
+        <div id="page-achievements" class="page-content hidden h-full flex flex-col">
+            <div class="flex-shrink-0 mb-6 flex justify-between items-start">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2 mb-2">
+                        <i class="ph ph-trophy text-emerald-600"></i> บันทึกผลความสำเร็จ
+                    </h2>
+                    <p class="text-slate-600">ประเมินผลลัพธ์ที่ได้เปรียบเทียบกับเป้าหมายของสถานศึกษาโดยอัตโนมัติ</p>
+                </div>
+                <button class="btn-base btn-secondary" onclick="window.appFunctions.finishSession()">
+                    <i class="ph ph-arrow-counter-clockwise"></i> เริ่มโครงการใหม่
+                </button>
+            </div>
+            <div id="achievementsContainer" class="flex-1 pb-10"></div>
+        </div>
+
+        <!-- Page 3: Results -->
+        <div id="page-results" class="page-content hidden h-full flex flex-col">
+            <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                        <i class="ph ph-table text-blue-600"></i> ผลการบันทึกข้อมูล
+                    </h2>
+                    <p class="text-slate-600 mt-1">ตารางข้อมูลกิจกรรมทั้งหมดที่ถูกบันทึกไว้ในระบบ (ดึงออกมาเป็น Word ได้)</p>
+                </div>
+                <button class="btn-base btn-danger-lg" onclick="window.appFunctions.clearAllData()">
+                    <i class="ph ph-trash"></i> ล้างข้อมูลทั้งหมดในเครื่อง
+                </button>
+            </div>
+            <div id="resultsContainer" class="flex-1 pb-10"></div>
+        </div>
+
+        <!-- Page 4: School Summary -->
+        <div id="page-summary" class="page-content hidden h-full flex flex-col">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2 mb-2">
+                    <i class="ph ph-presentation-chart text-blue-600"></i> สรุปผลสถานศึกษา
+                </h2>
+                <p class="text-slate-600">รายงานสรุปภาพรวมความสำเร็จของโครงการต่างๆ</p>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm mb-6 flex flex-wrap gap-4 items-end">
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">กรองตามกลยุทธ์</label>
+                    <select id="summary-filter-strategy" class="input-field" onchange="window.appFunctions.renderSchoolSummaryPage()">
+                        <option value="">-- ทั้งหมด --</option>
+                    </select>
+                </div>
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">กรองตามมาตรฐาน</label>
+                    <select id="summary-filter-standard" class="input-field" onchange="window.appFunctions.renderSchoolSummaryPage()">
+                        <option value="">-- ทั้งหมด --</option>
+                    </select>
+                </div>
+                <button class="btn-base btn-secondary py-3" onclick="window.appFunctions.renderSchoolSummaryPage()">
+                    <i class="ph ph-arrows-clockwise"></i> อัปเดตข้อมูล
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="stat-card border-blue-100">
+                    <div class="stat-value text-blue-600" id="stat-total-projects">0</div>
+                    <div class="stat-label">โครงการทั้งหมด</div>
+                </div>
+                <div class="stat-card border-emerald-100">
+                    <div class="stat-value text-emerald-600" id="stat-achieved-count">0</div>
+                    <div class="stat-label">มาตรฐานที่บรรลุเป้าหมาย</div>
+                </div>
+                <div class="stat-card border-purple-100">
+                    <div class="stat-value text-purple-600" id="stat-success-rate">0%</div>
+                    <div class="stat-label">ร้อยละความสำเร็จโดยรวม</div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-slate-200 flex-1">
+                <div class="overflow-x-auto h-full">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 25%">ชื่อโครงการ</th>
+                                <th style="width: 20%">มาตรฐาน</th>
+                                <th style="width: 20%">เป้าหมาย</th>
+                                <th style="width: 20%">ผลลัพธ์</th>
+                                <th style="width: 15%" class="text-center">สถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summaryTableBody">
+                            <tr><td colspan="5" class="text-center py-8 text-slate-500">กำลังประมวลผล...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 5: Admin Settings -->
+        <div id="page-admin" class="page-content hidden h-full flex flex-col">
+            <div class="flex-shrink-0 mb-8 bg-slate-800 text-white p-6 rounded-2xl shadow-lg flex justify-between items-center flex-wrap gap-4 relative overflow-hidden">
+                <div class="absolute right-0 top-0 w-40 h-40 bg-emerald-500 opacity-10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+                
+                <div class="w-full xl:w-auto flex-1 relative z-10">
+                    <h2 class="text-2xl font-bold flex items-center gap-3">
+                        <div class="bg-slate-700 p-2 rounded-xl"><i class="ph ph-google-logo text-emerald-400"></i></div>
+                        ฐานข้อมูลเป้าหมาย (Google Sheets)
+                    </h2>
+                    <p class="text-slate-300 mt-2 font-medium text-sm">ดึงข้อมูลเป้าหมายและเกณฑ์จากส่วนกลาง ระบบจะอ่านจาก Sheet เพื่อให้ทุกคนเห็นข้อมูลตรงกัน</p>
+                    
+                    <!-- ส่วนแสดงลิงก์ Web App -->
+                    <div class="mt-4 flex flex-col md:flex-row gap-3 items-center bg-slate-900/50 p-3 rounded-xl border border-slate-600 shadow-inner">
+                        <span class="text-sm text-slate-300 font-bold whitespace-nowrap"><i class="ph ph-link text-lg"></i> ลิงก์ระบบ:</span>
+                        <input type="text" id="webAppUrl" class="input-field bg-slate-800/80 text-emerald-400 border-none flex-1 py-2 text-sm w-full md:w-96 cursor-text" value="https://script.google.com/macros/s/AKfycbzSSHzYFnNU403zjMOx2SOMX8A2A4nKjRdaFNL0SiBHfsax7zUt9AqMM-zHe9OcT5Frlw/exec" readonly>
+                        <button class="btn-base bg-emerald-600 hover:bg-emerald-500 text-white py-2 px-4 shadow-none" onclick="window.appFunctions.copyText('webAppUrl')">
+                            <i class="ph ph-copy"></i> คัดลอก
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 relative z-10 mt-2 xl:mt-0 w-full xl:w-auto justify-end">
+                    <a href="https://docs.google.com/spreadsheets/d/1r6dg-Vu1Z-LM-eczWUuRsllzuQ4_2WsMQ2-iW5ecwII/edit" target="_blank" class="btn-base bg-slate-700 text-white hover:bg-slate-600 border border-slate-600 shadow-sm transition-colors">
+                        <i class="ph ph-arrow-square-out text-lg"></i> เปิด Sheet แก้ไขเกณฑ์
+                    </a>
+                    <button class="btn-base btn-success shadow-lg" onclick="window.appFunctions.syncGoogleSheet()">
+                        <i class="ph ph-arrows-clockwise text-lg" id="syncIcon"></i> ดึงเกณฑ์ล่าสุด
+                    </button>
+                </div>
+            </div>
+            
+            <div class="flex-1 bg-white shadow-xl rounded-2xl overflow-hidden border border-slate-200 flex flex-col">
+                <div class="overflow-y-auto flex-1 p-2">
+                    <table class="data-table w-full">
+                        <thead>
+                            <tr>
+                                <th class="w-3/12 sticky top-0 shadow-sm bg-slate-50 text-slate-700">มาตรฐาน / ตัวบ่งชี้</th>
+                                <th class="w-2/12 sticky top-0 shadow-sm bg-slate-50 text-slate-700 text-center">เป้าหมาย (ร้อยละ)</th>
+                                <th class="w-2/12 sticky top-0 shadow-sm bg-slate-50 text-slate-700 text-center">เป้าหมาย (คุณภาพ)</th>
+                                <th class="w-5/12 sticky top-0 shadow-sm bg-slate-50 text-slate-700">คำอธิบายเกณฑ์ประเมิน</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminStandardsTableBody">
+                            <tr><td colspan="4" class="text-center py-10 text-slate-500">กำลังดึงข้อมูลจาก Google Sheets...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+  </main>
+
+  <!-- Admin Login Modal -->
+  <div id="adminLoginModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-8 w-[400px] shadow-2xl transform transition-all">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2"><i class="ph ph-lock-key text-blue-600"></i> เข้าสู่ระบบ Admin</h3>
+        <button onclick="window.appFunctions.closeAdminLogin()" class="text-slate-400 hover:text-slate-600 bg-slate-100 p-2 rounded-full">
+          <i class="ph ph-x text-lg"></i>
+        </button>
+      </div>
+      <div class="mb-6">
+        <label class="block text-slate-700 text-sm font-bold mb-2">รหัสผ่านสำหรับแอดมิน</label>
+        <input type="password" id="adminPasswordInput" class="input-field" placeholder="กรอกรหัสผ่าน..." onkeyup="if(event.key === 'Enter') window.appFunctions.submitAdminLogin()">
+      </div>
+      <div class="flex justify-end gap-3">
+        <button onclick="window.appFunctions.closeAdminLogin()" class="btn-base btn-secondary py-2">ยกเลิก</button>
+        <button onclick="window.appFunctions.submitAdminLogin()" class="btn-base btn-primary py-2">เข้าสู่ระบบ</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer"></div>
+
+  <script>
+    // =====================================================
+    // Namespace & Globals
+    // =====================================================
+    window.appFunctions = {};
+
+    const STRATEGIES = [
+      { id: 'S1', text: 'กลยุทธ์ที่ 1 : พัฒนาการบริหารจัดการด้วยระบบคุณภาพตามหลักปรัชญาของเศรษฐกิจพอเพียง' },
+      { id: 'S2', text: 'กลยุทธ์ที่ 2 : พัฒนาคุณภาพผู้เรียนและมาตรฐานการศึกษาตามมาตรฐานสากล' },
+      { id: 'S3', text: 'กลยุทธ์ที่ 3 : พัฒนาศักยภาพครูและบุคลากรทางการศึกษาให้เชี่ยวชาญตามมาตรฐานวิชาชีพ และมาตรฐานสากล' },
+      { id: 'S4', text: 'กลยุทธ์ที่ 4 : ส่งเสริม ปลูกฝังคุณธรรม จริยธรรม และสร้างจิตสำนึกให้ผู้เรียนรักษ์สิ่งแวดล้อม ภูมิปัญญา และวัฒนธรรมของชาติ' },
+      { id: 'S5', text: 'กลยุทธ์ที่ 5 : พัฒนาแหล่งเรียนรู้ เทคโนโลยีสารสนเทศ ที่เอื้อต่อการจัดการเรียนการสอน' },
+      { id: 'S6', text: 'กลยุทธ์ที่ 6 : ระดมสรรพกำลังจากเครือข่ายร่วมพัฒนาทั้งในประเทศและระหว่างประเทศเพื่อพัฒนาการศึกษาอย่างต่อเนื่อง' }
+    ];
+    
+    const STANDARDS = [
+      { id: 'M1', text: 'มาตรฐานที่ 1 คุณภาพผู้เรียน', isMain: true },
+      { id: 'M1.1', text: '1.1 ผลสัมฤทธิ์ทางวิชาการของผู้เรียน', isMain: true },
+      { id: 'M1.1.1', text: '1.1.1 ผู้เรียนมีความสามารถในการอ่าน การเขียน ได้เหมาะสมตามระดับชั้น' },
+      { id: 'M1.1.2', text: '1.1.2 ผู้เรียนมีความสามารถในการสื่อสารภาษาไทยได้เหมาะสมตามระดับชั้น' },
+      { id: 'M1.1.3', text: '1.1.3 ผู้เรียนมีความสามารถในการสื่อสารภาษาต่างประเทศได้เหมาะสมตามระดับชั้น' },
+      { id: 'M1.1.4', text: '1.1.4 ผู้เรียนมีความสามารถในการคิดคำนวณ ได้เหมาะสมตามระดับชั้น' },
+      { id: 'M1.2', text: '1.2 มีความสามารถในการคิดวิเคราะห์ คิดอย่างมีวิจารณญาณ อภิปรายแลกเปลี่ยนความคิดเห็น และแก้ปัญหา' },
+      { id: 'M1.3', text: '1.3 ความสามารถในการสร้างนวัตกรรม' },
+      { id: 'M1.4', text: '1.4 ความสามารถในการใช้เทคโนโลยีสารสนเทศและการสื่อสาร' },
+      { id: 'M1.5.1', text: '1.5.1 มีผลสัมฤทธิ์ทางการเรียนในรายวิชาภาษาไทย ระดับดีขึ้นไป' },
+      { id: 'M1.5.2', text: '1.5.2 มีผลสัมฤทธิ์ทางการเรียนในรายวิชาคณิตศาสตร์ ระดับดีขึ้นไป' },
+      { id: 'M1.5.3', text: '1.5.3 มีผลสัมฤทธิ์ทางการเรียนในรายวิชาวิทยาศาสตร์และเทคโนโลยี ระดับดีขึ้นไป' },
+      { id: 'M1.5.4', text: '1.5.4 มีผลสัมฤทธิ์ทางการเรียนในรายวิชาสังคมศึกษา ระดับดีขึ้นไป' },
+      { id: 'M1.5.5', text: '1.5.5 มีผลสัมฤทธิ์ทางการเรียนในรายวิชาศิลปะ ระดับดีขึ้นไป' },
+      { id: 'M1.5.6', text: '1.5.6 มีผลสัมฤทธิ์ทางการเรียนในรายวิชาภาษาต่างประเทศ ระดับดีขึ้นไป' },
+      { id: 'M1.5.7', text: '1.5.7 มีผลสัมฤทธิ์ทางการเรียนในรายวิชาสุขศึกษาและพลศึกษา ระดับดีขึ้นไป' },
+      { id: 'M1.5.8', text: '1.5.8 มีผลสัมฤทธิ์ทางการเรียนในรายวิชาการงานอาชีพ ระดับดีขึ้นไป' },
+      { id: 'M1.5.9', text: '1.5.9 ผลการทดสอบระดับชาติ' },
+      { id: 'M1.6', text: '1.6 มีความรู้ ทักษะพื้นฐาน และเจตคติที่ดีต่องานอาชีพ' },
+      { id: 'M1.7', text: '1.7 ผู้เรียนมีสมรรถนะตามหลักสูตรสถานศึกษา' },
+      { id: 'M1.8', text: '1.8 ผู้เรียนสามารถนำตนเองในการเรียนรู้' },
+      { id: 'M1.2.0', text: '1.2 คุณลักษณะที่พึงประสงค์ของผู้เรียน', isMain: true },
+      { id: 'M1.2.1', text: '1.2.1 การมีคุณลักษณะและค่านิยมที่ดีตามที่สถานศึกษากำหนด' },
+      { id: 'M1.2.2', text: '1.2.2 ความภูมิใจในท้องถิ่นและความเป็นไทย' },
+      { id: 'M1.3.3', text: '1.3.3 การยอมรับที่จะอยู่ร่วมกันบนความแตกต่างและหลากหลาย' },
+      { id: 'M1.3.4', text: '1.3.4 สุขภาวะทางร่างกาย และจิตสังคม' },
+      { id: 'M2', text: 'มาตรฐานที่ 2 กระบวนการบริหารและการจัดการ', isMain: true },
+      { id: 'M2.1', text: '2.1 มีเป้าหมายวิสัยทัศน์และพันธกิจที่สถานศึกษากำหนดชัดเจน' },
+      { id: 'M2.2', text: '2.2 มีระบบบริหารจัดการคุณภาพของสถานศึกษา' },
+      { id: 'M2.3', text: '2.3 ดำเนินงานพัฒนาวิชาการที่เน้นคุณภาพผู้เรียนรอบด้านตามหลักสูตรสถานศึกษาและทุกกลุ่มเป้าหมาย' },
+      { id: 'M2.4', text: '2.4 พัฒนาครูและบุคลากรให้มีความเชี่ยวชาญทางวิชาชีพ' },
+      { id: 'M2.5', text: '2.5 จัดสภาพแวดล้อมทางกายภาพและสังคมที่เอื้อต่อการจัดการเรียนรู้อย่างมีคุณภาพ' },
+      { id: 'M2.6', text: '2.6 จัดระบบเทคโนโลยีสารสนเทศเพื่อสนับสนุนการบริหารจัดการและการจัดการเรียนรู้' },
+      { id: 'M2.7', text: '2.7 ผู้บริหารสถานศึกษามีภาวะผู้นำทางวิชาการและบริหารจัดการด้วยหลักธรรมาภิบาล' },
+      { id: 'M2.8', text: '2.8 กระบวนการนิเทศการปฏิบัติงานของครูและบุคลากรทางการศึกษาอย่างเป็นระบบ' },
+      { id: 'M2.9', text: '2.9 ระบบและกระบวนการช่วยเหลือผู้เรียน' },
+      { id: 'M2.10', text: '2.10 การเสริมสร้างเครือข่ายผู้ปกครอง องค์กร และชุมชน เพื่อความร่วมมือในการสนับสนุนการจัดการเรียนรู้และพัฒนาผู้เรียน' },
+      { id: 'M3', text: 'มาตรฐานที่ 3 กระบวนการจัดการเรียนการสอนที่เน้นผู้เรียนเป็นสำคัญ', isMain: true },
+      { id: 'M3.1', text: '3.1 ครูจัดการเรียนรู้ผ่านกระบวนการคิดและปฏิบัติจริงและสามารถนำไปประยุกต์ใช้ในชีวิตได้' },
+      { id: 'M3.2', text: '3.2 ครูใช้สื่อ เทคโนโลยีสารสนเทศและแหล่งเรียนรู้ที่เอื้อต่อการเรียนรู้' },
+      { id: 'M3.3', text: '3.3 ครูมีการบริหารจัดการชั้นเรียนเชิงบวก' },
+      { id: 'M3.4', text: '3.4 ครูตรวจสอบและประเมินผู้เรียนอย่างเป็นระบบและนำผลมาพัฒนาผู้เรียน' },
+      { id: 'M3.5', text: '3.5 ครูมีการแลกเปลี่ยนเรียนรู้และให้ข้อมูลสะท้อนกลับเพื่อพัฒนาและปรับปรุงการจัดการเรียนรู้' },
+      { id: 'M3.6', text: '3.6 ครูมีการจัดกิจกรรมการเรียนรู้ที่เสริมสร้างสมรรถนะและคุณลักษณะที่พึงประสงค์' }
+    ];
+    
+    const QUALITY_LEVELS = ['ยอดเยี่ยม', 'ดีเลิศ', 'ดี', 'ปานกลาง', 'กำลังพัฒนา'];
+    
+    let activities = [];
+    let activityCounter = 0;
+    
+    let allRecords = [];
+    let resultsData = []; // เก็บเฉพาะผลความสำเร็จ
+    let adminDefaults = {}; // เก็บเป้าหมายจากส่วนกลาง
+    let currentSessionIds = [];
+    let deleteConfirmId = null;
+
+    // =====================================================
+    // Utils & Helpers
+    // =====================================================
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type} flex items-center gap-3`;
+      let icon = type === 'success' ? 'ph-check-circle' : type === 'error' ? 'ph-warning-circle' : 'ph-info';
+      toast.innerHTML = `<i class="ph ${icon} text-2xl"></i> <span class="text-sm font-semibold">${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 3000);
+    }
+    
+    function copyText(elementId) {
+        const copyEl = document.getElementById(elementId);
+        copyEl.select();
+        copyEl.setSelectionRange(0, 99999);
+        document.execCommand("copy");
+        showToast('คัดลอกลิงก์ลงคลิปบอร์ดแล้ว', 'success');
+    }
+    
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    function safeString(str) {
+      if (!str) return '';
+      return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
+    }
+
+    function getStrategyText(id) { const s = STRATEGIES.find(s => s.id === id); return s ? s.text : id; }
+    function getStandardText(id) { const s = STANDARDS.find(s => s.id === id); return s ? s.text : id; }
+
+    function formatDescriptionHtml(description) {
+      if (!description) return '';
+      const lines = description.split('\n').filter(line => line.trim() !== '');
+      if (lines.length === 0) return '';
+
+      let html = '<div class="space-y-1.5 mb-3">';
+      lines.forEach(line => {
+        let colorClass = 'bg-slate-50 text-slate-700 border-slate-200';
+        let icon = 'ph-info';
+        
+        if (line.includes('ยอดเยี่ยม')) { colorClass = 'bg-purple-50 text-purple-800 border-purple-200'; icon = 'ph-star-fill text-purple-500'; }
+        else if (line.includes('ดีเลิศ')) { colorClass = 'bg-emerald-50 text-emerald-800 border-emerald-200'; icon = 'ph-thumbs-up text-emerald-500'; }
+        else if (line.includes('ดี')) { colorClass = 'bg-blue-50 text-blue-800 border-blue-200'; icon = 'ph-check-circle text-blue-500'; }
+        else if (line.includes('ปานกลาง')) { colorClass = 'bg-amber-50 text-amber-800 border-amber-200'; icon = 'ph-minus-circle text-amber-500'; }
+        else if (line.includes('กำลังพัฒนา') || line.includes('ปรับปรุง')) { colorClass = 'bg-rose-50 text-rose-800 border-rose-200'; icon = 'ph-warning-circle text-rose-500'; }
+
+        html += `<div class="${colorClass} text-sm p-2.5 rounded-lg border flex items-start gap-2 shadow-sm"><i class="ph ${icon} mt-0.5 flex-shrink-0 text-lg"></i><span>${escapeHtml(line)}</span></div>`;
+      });
+      html += '</div>';
+      return html;
+    }
+
+    // =====================================================
+    // Storage & Sync
+    // =====================================================
+    function saveToLocalStorage() {
+      try {
+        localStorage.setItem('activityRecords', JSON.stringify(allRecords));
+        localStorage.setItem('resultsData', JSON.stringify(resultsData));
+        localStorage.setItem('adminDefaults', JSON.stringify(adminDefaults));
+
+        // ส่งข้อมูลไปบันทึกที่ Google Sheets แบบ Background
+        // หมายเหตุ: ตัดส่ง Goals ทิ้งไป เพราะเราจะดึงจากส่วนกลางแทน
+        if (typeof google !== 'undefined' && google.script && google.script.run) {
+            google.script.run.saveDataToSheet(allRecords, [], resultsData);
+        }
+      } catch (e) {
+        console.warn('LocalStorage Save Error');
+      }
+    }
+    
+    function loadFromLocalStorage() {
+      try {
+        const records = localStorage.getItem('activityRecords');
+        const results = localStorage.getItem('resultsData');
+        const defaults = localStorage.getItem('adminDefaults');
+        
+        if (records) allRecords = JSON.parse(records);
+        if (results) resultsData = JSON.parse(results);
+        if (defaults) adminDefaults = JSON.parse(defaults);
+      } catch (e) {}
+    }
+
+    function loadAdminDefaultsFromSheet(showNotification = false) {
+      if(showNotification) {
+          const icon = document.getElementById('syncIcon');
+          if(icon) icon.classList.add('animate-spin');
+      }
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+          google.script.run
+              .withSuccessHandler(function(response) {
+                  if (response.success && Object.keys(response.data).length > 0) {
+                      adminDefaults = response.data;
+                      saveToLocalStorage();
+                      if(showNotification) showToast('ซิงค์ข้อมูลเป้าหมายสำเร็จ', 'success');
+                  } else {
+                      if(showNotification) showToast('ไม่พบข้อมูล หรือ Sheet ว่างเปล่า', 'warning');
+                  }
+                  finalizeSync(showNotification);
+              })
+              .withFailureHandler(function(error) {
+                  console.error('Apps Script Error:', error);
+                  if(showNotification) showToast('ซิงค์ล้มเหลว โปรดตรวจสอบสิทธิ์ชีต', 'error');
+                  finalizeSync(showNotification);
+              })
+              .getAdminDefaults();
+      } else {
+          if(showNotification) showToast('ต้องรันบน Google Apps Script จึงจะดึงข้อมูลได้', 'warning');
+          finalizeSync(showNotification);
+      }
+    }
+
+    function finalizeSync(showNotification) {
+        if(showNotification) {
+            const icon = document.getElementById('syncIcon');
+            if(icon) icon.classList.remove('animate-spin');
+            renderAdminPage();
+        }
+    }
+
+    // =====================================================
+    // UI Navigation
+    // =====================================================
+    function switchPage(pageName) {
+      document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      
+      const page = document.getElementById(`page-${pageName}`);
+      if (page) {
+        page.classList.remove('hidden');
+        page.classList.add('animate-fade-in');
+      }
+      
+      const tab = document.querySelector(`[data-page="${pageName}"]`);
+      if (tab) tab.classList.add('active');
+      
+      if (pageName === 'results') renderResultsTable();
+      else if (pageName === 'achievements') renderAchievementsPage();
+      else if (pageName === 'admin') renderAdminPage();
+      else if (pageName === 'summary') renderSchoolSummaryPage();
+    }
+
+    // =====================================================
+    // Logic - Page 1: Inputs
+    // =====================================================
+    function createActivityCard(index) {
+      const id = `activity-${activityCounter++}`;
+      
+      const strategiesHtml = STRATEGIES.map(s => `
+        <label class="checkbox-item">
+          <input type="checkbox" name="${id}-strategy" value="${s.id}">
+          <span class="text-sm text-slate-700 leading-snug">${escapeHtml(s.text)}</span>
+        </label>
+      `).join('');
+      
+      const standardsHtml = STANDARDS.map(s => {
+        if (s.isMain) return `<div class="standard-category">${escapeHtml(s.text)}</div>`;
+        return `
+          <label class="checkbox-item">
+            <input type="checkbox" name="${id}-standard" value="${s.id}">
+            <span class="text-sm text-slate-700 leading-snug">${escapeHtml(s.text)}</span>
+          </label>
+        `;
+      }).join('');
+      
+      return `
+        <div class="activity-card" id="${id}">
+          <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
+            <h3 class="text-xl font-bold text-blue-900 flex items-center gap-3">
+                <span class="bg-blue-100 text-blue-700 text-sm px-3 py-1 rounded-lg">กิจกรรมที่ ${index + 1}</span>
+            </h3>
+            ${index > 0 ? `<button type="button" class="btn-base btn-danger" onclick="window.appFunctions.removeActivity('${id}')"><i class="ph ph-trash"></i> ลบ</button>` : ''}
+          </div>
+          
+          <div class="grid gap-6">
+            <div class="grid md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-slate-700 font-bold mb-2">รหัสกิจกรรม <span class="text-red-500">*</span></label>
+                <input type="text" class="input-field" name="${id}-code" placeholder="ระบุรหัสกิจกรรม">
+              </div>
+              <div>
+                <label class="block text-slate-700 font-bold mb-2">ชื่อกิจกรรม <span class="text-red-500">*</span></label>
+                <input type="text" class="input-field" name="${id}-name" placeholder="ระบุชื่อกิจกรรม">
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-slate-700 font-bold mb-2">วัตถุประสงค์ของกิจกรรม <span class="text-red-500">*</span></label>
+              <div id="${id}-objectives" class="space-y-3">
+                <div class="flex gap-2 objective-row">
+                  <div class="flex items-center justify-center bg-slate-100 w-10 rounded-lg text-slate-500 font-bold">1</div>
+                  <input type="text" class="input-field flex-1" name="${id}-objective" placeholder="ระบุวัตถุประสงค์ข้อที่ 1">
+                  <button type="button" class="btn-base btn-danger" onclick="window.appFunctions.removeObjective(this)" style="display:none;"><i class="ph ph-x text-lg"></i></button>
+                </div>
+              </div>
+              <button type="button" class="mt-3 text-blue-600 text-sm font-bold hover:text-blue-800 flex items-center gap-1 bg-blue-50 px-3 py-1.5 rounded-lg transition-colors" onclick="window.appFunctions.addObjective('${id}')">
+                <i class="ph ph-plus-circle"></i> เพิ่มวัตถุประสงค์
+              </button>
+            </div>
+            
+            <div class="grid lg:grid-cols-2 gap-6 mt-2">
+                <div>
+                  <label class="block text-slate-700 font-bold mb-3"><i class="ph ph-target text-blue-500"></i> สนองกลยุทธ์ของโรงเรียน</label>
+                  <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 max-h-80 overflow-y-auto">
+                      <div class="checkbox-grid">${strategiesHtml}</div>
+                  </div>
+                </div>
+                
+                <div>
+                  <label class="block text-slate-700 font-bold mb-3"><i class="ph ph-list-checks text-emerald-500"></i> สนองมาตรฐาน / ตัวบ่งชี้</label>
+                  <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 max-h-80 overflow-y-auto">
+                      <div class="checkbox-grid">${standardsHtml}</div>
+                  </div>
+                </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    
+    function addActivity() {
+      const container = document.getElementById('activitiesContainer');
+      if (!container) return;
+      const index = container.children.length;
+      container.insertAdjacentHTML('beforeend', createActivityCard(index));
+      activities.push(`activity-${activityCounter - 1}`);
+      updateObjectiveButtons();
+    }
+    
+    function removeActivity(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.remove();
+        activities = activities.filter(a => a !== id);
+        renumberActivities();
+      }
+    }
+    
+    function renumberActivities() {
+      document.querySelectorAll('.activity-card').forEach((card, index) => {
+        const title = card.querySelector('h3 span');
+        if (title) title.innerText = `กิจกรรมที่ ${index + 1}`;
+      });
+    }
+
+    function addObjective(activityId) {
+      const container = document.getElementById(`${activityId}-objectives`);
+      const count = container.querySelectorAll('.objective-row').length + 1;
+      const newRow = document.createElement('div');
+      newRow.className = 'flex gap-2 objective-row';
+      newRow.innerHTML = `
+        <div class="flex items-center justify-center bg-slate-100 w-10 rounded-lg text-slate-500 font-bold">${count}</div>
+        <input type="text" class="input-field flex-1" name="${activityId}-objective" placeholder="ระบุวัตถุประสงค์ข้อที่ ${count}">
+        <button type="button" class="btn-base btn-danger" onclick="window.appFunctions.removeObjective(this)"><i class="ph ph-x text-lg"></i></button>
+      `;
+      container.appendChild(newRow);
+      updateObjectiveButtons();
+    }
+    
+    function removeObjective(button) {
+      const row = button.closest('.objective-row');
+      const container = row.parentNode;
+      if (container.querySelectorAll('.objective-row').length > 1) {
+        row.remove();
+        container.querySelectorAll('.objective-row').forEach((r, idx) => {
+            r.querySelector('div').textContent = idx + 1;
+            r.querySelector('input').placeholder = `ระบุวัตถุประสงค์ข้อที่ ${idx + 1}`;
+        });
+        updateObjectiveButtons();
+      }
+    }
+    
+    function updateObjectiveButtons() {
+      document.querySelectorAll('[id$="-objectives"]').forEach(container => {
+        const rows = container.querySelectorAll('.objective-row');
+        rows.forEach(row => {
+          const btn = row.querySelector('.btn-danger');
+          if (btn) btn.style.display = rows.length > 1 ? 'flex' : 'none';
+        });
+      });
+    }
+
+    function validateActivities() {
+      let isValid = true;
+      let errorMessages = [];
+      const projCodeInput = document.getElementById('current-project-code');
+      const projInput = document.getElementById('current-project-name');
+      
+      if (!projCodeInput.value.trim()) {
+          isValid = false; errorMessages.push('กรุณาระบุรหัสโครงการ');
+          projCodeInput.classList.add('border-red-500');
+      } else { projCodeInput.classList.remove('border-red-500'); }
+
+      if (!projInput.value.trim()) {
+          isValid = false; errorMessages.push('กรุณาระบุชื่อโครงการ');
+          projInput.classList.add('border-red-500');
+      } else { projInput.classList.remove('border-red-500'); }
+
+      document.querySelectorAll('.activity-card').forEach((card, index) => {
+        const codeInput = card.querySelector('[name$="-code"]');
+        const nameInput = card.querySelector('[name$="-name"]');
+        const objInputs = card.querySelectorAll('[name$="-objective"]');
+        
+        if (!codeInput.value.trim()) {
+          isValid = false; errorMessages.push(`กิจกรรมที่ ${index + 1}: กรุณากรอกรหัสกิจกรรม`);
+          codeInput.classList.add('border-red-500');
+        } else { codeInput.classList.remove('border-red-500'); }
+
+        if (!nameInput.value.trim()) {
+          isValid = false; errorMessages.push(`กิจกรรมที่ ${index + 1}: กรุณากรอกชื่อกิจกรรม`);
+          nameInput.classList.add('border-red-500');
+        } else { nameInput.classList.remove('border-red-500'); }
+        
+        if (!Array.from(objInputs).some(input => input.value.trim())) {
+          isValid = false; errorMessages.push(`กิจกรรมที่ ${index + 1}: กรุณากรอกวัตถุประสงค์อย่างน้อย 1 ข้อ`);
+          objInputs[0].classList.add('border-red-500');
+        } else { objInputs.forEach(i => i.classList.remove('border-red-500')); }
+      });
+      return { isValid, errorMessages };
+    }
+
+    function saveAllActivities() {
+      const btn = document.getElementById('saveAllBtn');
+      const validation = validateActivities();
+      
+      if (!validation.isValid) {
+        validation.errorMessages.slice(0, 3).forEach(msg => showToast(msg, 'error'));
+        return;
+      }
+      
+      const projectCode = document.getElementById('current-project-code').value.trim();
+      const projectName = document.getElementById('current-project-name').value.trim();
+      btn.disabled = true; btn.innerHTML = '<i class="ph ph-spinner animate-spin text-2xl"></i> กำลังบันทึก...';
+      
+      try {
+        currentSessionIds = [];
+
+        document.querySelectorAll('.activity-card').forEach(card => {
+          const cardId = card.id;
+          const code = card.querySelector(`[name="${cardId}-code"]`).value.trim();
+          const name = card.querySelector(`[name="${cardId}-name"]`).value.trim();
+          const objectives = Array.from(card.querySelectorAll(`[name="${cardId}-objective"]`)).map(i => i.value.trim()).filter(v => v);
+          const strategies = Array.from(card.querySelectorAll(`[name="${cardId}-strategy"]:checked`)).map(cb => cb.value);
+          const standards = Array.from(card.querySelectorAll(`[name="${cardId}-standard"]:checked`)).map(cb => cb.value);
+          
+          const newId = `ACT${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          
+          allRecords.push({
+            id: newId, type: 'activity', project_code: projectCode, project_name: projectName, 
+            activity_code: code, activity_name: name,
+            objectives: JSON.stringify(objectives), strategies: JSON.stringify(strategies),
+            standards: JSON.stringify(standards), created_at: new Date().toISOString()
+          });
+          currentSessionIds.push(newId);
+        });
+
+        saveToLocalStorage();
+        showToast(`บันทึกโครงการและเชื่อมโยงมาตรฐานสำเร็จ`, 'success');
+        
+        // Reset form
+        document.getElementById('activitiesContainer').innerHTML = '';
+        document.getElementById('current-project-code').value = '';
+        document.getElementById('current-project-name').value = '';
+        activities = []; activityCounter = 0; addActivity();
+        
+        // ตรงไปหน้าผลความสำเร็จเลย (ข้ามหน้าเป้าหมายที่ถูกตัดออก)
+        switchPage('achievements');
+        
+      } catch (error) {
+        showToast('เกิดข้อผิดพลาด: ' + error.message, 'error');
+      } finally {
+        btn.disabled = false; btn.innerHTML = '<i class="ph ph-floppy-disk text-2xl"></i> บันทึกข้อมูลโครงการ';
+      }
+    }
+
+    // =====================================================
+    // Logic - Achievements & Target Defaults
+    // =====================================================
+    function getSessionStandards() {
+        const records = allRecords.filter(r => r.type === 'activity' && currentSessionIds.includes(r.id));
+        const unique = new Set();
+        records.forEach(r => { try { JSON.parse(r.standards || '[]').forEach(s => unique.add(s)); } catch(e){} });
+        return Array.from(unique);
+    }
+
+    function renderAchievementsPage() {
+      const container = document.getElementById('achievementsContainer');
+      const stdIds = getSessionStandards();
+
+      if (stdIds.length === 0) {
+        container.innerHTML = `<div class="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300">
+            <i class="ph ph-trophy text-6xl text-slate-300 mb-4"></i>
+            <p class="text-slate-600 font-bold text-lg">ยังไม่มีมาตรฐานให้ประเมินผล</p>
+            <p class="text-slate-400 mt-2">โปรดบันทึกโครงการที่มีการเลือกมาตรฐานก่อน เพื่อให้ระบบดึงเกณฑ์มาประเมินผล</p>
+        </div>`;
+        return;
+      }
+      
+      container.innerHTML = stdIds.map(stdId => {
+        const result = resultsData.find(r => r.result_goal_id === stdId);
+        
+        // ดึงค่าเป้าหมายและคำอธิบายจากค่าเริ่มต้นที่ดึงมาจาก Sheet 
+        const def = adminDefaults[stdId] || { quantity: '', quality: '', description: '' };
+        const descHtml = formatDescriptionHtml(def.description);
+        const stdName = getStandardText(stdId);
+
+        return `
+        <div class="achievement-card">
+          <div class="achievement-header"><h3 class="text-xl font-bold">${escapeHtml(stdName)}</h3></div>
+          
+          <div class="bg-blue-50 p-5 rounded-xl mb-8 border border-blue-100 flex flex-col md:flex-row gap-6 items-center">
+             <div class="w-full md:w-1/3 border-r border-blue-200">
+                 <h4 class="font-bold text-blue-900 mb-1 flex items-center gap-2"><i class="ph ph-flag-checkered text-xl"></i> เป้าหมาย</h4>
+                 <p class="text-sm text-blue-700">อ้างอิงจากเกณฑ์ของสถานศึกษา</p>
+             </div>
+             <div class="flex-1 w-full grid grid-cols-2 gap-4">
+                 <div class="bg-white p-3 rounded-lg shadow-sm border border-blue-100">
+                    <div class="text-xs text-slate-500 font-bold uppercase mb-1">ปริมาณ</div>
+                    <div class="text-lg font-bold text-slate-800">${def.quantity ? def.quantity + '%' : '-'}</div>
+                 </div>
+                 <div class="bg-white p-3 rounded-lg shadow-sm border border-blue-100">
+                    <div class="text-xs text-slate-500 font-bold uppercase mb-1">คุณภาพ</div>
+                    <div class="text-lg font-bold text-slate-800">${def.quality || '-'}</div>
+                 </div>
+             </div>
+          </div>
+          
+          <h4 class="font-bold text-slate-800 mb-4 text-lg border-b pb-2">ผลการดำเนินงานจริง</h4>
+          <div class="grid md:grid-cols-2 gap-8">
+            <div>
+              <label class="block text-slate-700 font-bold mb-3">ผลสำเร็จเชิงปริมาณ (ร้อยละ)</label>
+              <div class="relative">
+                <input type="number" class="input-field pr-12 text-lg border-emerald-300 focus:border-emerald-500" id="result-qty-${stdId}" placeholder="0-100" min="0" max="100" value="${result ? result.result_quantity_achieved : ''}">
+                <span class="absolute right-4 top-3 text-slate-500 font-bold">%</span>
+              </div>
+            </div>
+            <div>
+              <label class="block text-slate-700 font-bold mb-3">ผลสำเร็จเชิงคุณภาพ <span class="text-red-500">*</span></label>
+              ${descHtml ? `<div class="mb-3">${descHtml}</div>` : ''}
+              <select class="input-field text-lg cursor-pointer border-emerald-300 focus:border-emerald-500" id="result-qual-${stdId}">
+                <option value="">-- เลือกระดับ --</option>
+                ${QUALITY_LEVELS.map(l => `<option value="${l}" ${result && result.result_quality_achieved === l ? 'selected' : ''}>${l}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div class="mt-8 flex justify-end">
+            <button class="btn-base btn-success px-8" onclick="window.appFunctions.saveAchievement('${stdId}')">
+              <i class="ph ph-check-circle text-lg"></i> บันทึกผลลัพธ์
+            </button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function saveAchievement(stdId) {
+      const qty = document.getElementById(`result-qty-${stdId}`).value.trim();
+      const qual = document.getElementById(`result-qual-${stdId}`).value.trim();
+      if (!qual) return showToast('กรุณาระบุผลสำเร็จเชิงคุณภาพ', 'warning');
+      
+      const idx = resultsData.findIndex(r => r.result_goal_id === stdId);
+      if (idx !== -1) {
+        resultsData[idx].result_quantity_achieved = qty; resultsData[idx].result_quality_achieved = qual;
+      } else {
+        resultsData.push({
+          result_id: `R${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          result_goal_id: stdId, result_quantity_achieved: qty, result_quality_achieved: qual,
+          created_at: new Date().toISOString()
+        });
+      }
+      saveToLocalStorage();
+      showToast('บันทึกผลสำเร็จเรียบร้อยแล้ว', 'success');
+    }
+    
+    function finishSession() {
+      if(confirm("ต้องการเริ่มโครงการใหม่ใช่หรือไม่? (ข้อมูลปัจจุบันถูกบันทึกแล้วและจะไม่หายไป)")) {
+        currentSessionIds = [];
+        document.getElementById('current-project-code').value = '';
+        document.getElementById('current-project-name').value = '';
+        document.getElementById('activitiesContainer').innerHTML = '';
+        activities = []; activityCounter = 0; addActivity();
+        switchPage('input');
+        showToast('เริ่มโครงการใหม่เรียบร้อย', 'success');
+      }
+    }
+
+    // =====================================================
+    // Logic - Results & Export
+    // =====================================================
+    function clearAllData() {
+        if (confirm('คุณแน่ใจหรือไม่ที่จะลบข้อมูลทั้งหมดในเครื่องนี้? (การตั้งค่า Admin จาก Sheet จะไม่หาย)')) {
+            localStorage.removeItem('activityRecords'); localStorage.removeItem('resultsData');
+            allRecords = []; resultsData = []; currentSessionIds = [];
+            document.getElementById('activitiesContainer').innerHTML = '';
+            document.getElementById('current-project-code').value = '';
+            document.getElementById('current-project-name').value = '';
+            activities = []; activityCounter = 0; addActivity();
+            switchPage('results');
+            showToast('ล้างข้อมูลเรียบร้อยแล้ว', 'success');
+        }
+    }
+
+    function requestDelete(id) { deleteConfirmId = id; renderResultsTable(); }
+    function cancelDelete() { deleteConfirmId = null; renderResultsTable(); }
+    function confirmDelete(id) {
+        const idx = allRecords.findIndex(r => r.id === id);
+        if (idx === -1) return;
+        const record = allRecords[idx];
+        allRecords.splice(idx, 1);
+        try {
+            JSON.parse(record.standards || '[]').forEach(stdId => {
+                resultsData = resultsData.filter(r => r.result_goal_id !== stdId);
+            });
+        } catch(e){}
+        saveToLocalStorage();
+        
+        // ลบข้อมูลจาก Google Sheets แบบ Background
+        if (typeof google !== 'undefined' && google.script && google.script.run) {
+            google.script.run.deleteDataFromSheet(id);
+        }
+
+        deleteConfirmId = null;
+        renderResultsTable();
+        showToast('ลบข้อมูลเรียบร้อยแล้ว', 'success');
+    }
+
+    function renderResultsTable() {
+      const container = document.getElementById('resultsContainer');
+      const records = allRecords.filter(r => r.type === 'activity');
+      if (records.length === 0) {
+        container.innerHTML = `<div class="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300 text-slate-500">ไม่มีข้อมูลกิจกรรมในระบบ</div>`;
+        return;
+      }
+      
+      const projects = {};
+      records.forEach(r => { const p = r.project_name || 'ไม่ระบุโครงการ'; if(!projects[p]) projects[p] = []; projects[p].push(r); });
+      
+      let html = '';
+      for (const [pName, acts] of Object.entries(projects)) {
+        const pCodeDisplay = acts.length > 0 && acts[0].project_code ? `[${acts[0].project_code}] ` : '';
+        html += `
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm mb-8 overflow-hidden">
+            <div class="bg-slate-50 p-5 border-b border-slate-200 flex justify-between items-center flex-wrap gap-4">
+                <h3 class="text-xl font-bold text-blue-900 flex items-center gap-3"><div class="p-2 bg-blue-100 rounded-lg"><i class="ph ph-folder-open text-blue-600"></i></div> โครงการ: ${escapeHtml(pCodeDisplay + pName)}</h3>
+                <button class="btn-base btn-word text-sm" onclick="window.appFunctions.exportToWord('${safeString(pName)}')"><i class="ph ph-file-doc"></i> ดาวน์โหลด Word</button>
+            </div>
+            <div class="overflow-x-auto p-4">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="min-width: 150px">กิจกรรม</th>
+                            <th style="min-width: 200px">มาตรฐาน</th>
+                            <th style="min-width: 120px">เป้าหมาย (ปริมาณ)</th><th style="min-width: 120px">เป้าหมาย (คุณภาพ)</th>
+                            <th style="min-width: 120px">ผลลัพธ์ (ปริมาณ)</th><th style="min-width: 120px">ผลลัพธ์ (คุณภาพ)</th>
+                            <th style="width: 80px" class="text-center">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>${generateResultRows(acts)}</tbody>
+                </table>
+            </div>
+        </div>`;
+      }
+      container.innerHTML = html;
+    }
+
+    function generateResultRows(acts) {
+        let html = '';
+        acts.forEach(act => {
+            let stds = []; try { stds = JSON.parse(act.standards || '[]'); } catch(e){}
+            const rSpan = stds.length > 0 ? stds.length : 1;
+            const actCodeHtml = act.activity_code ? `<div class="text-xs text-blue-600 mb-1 font-normal">รหัส: ${escapeHtml(act.activity_code)}</div>` : '';
+            const nameCell = `<td rowspan="${rSpan}" class="font-bold text-slate-800 bg-slate-50/50">${actCodeHtml}${escapeHtml(act.activity_name)}</td>`;
+            const actionHtml = deleteConfirmId === act.id 
+                ? `<button class="btn-base btn-danger w-full mb-1 py-1 text-xs" onclick="window.appFunctions.confirmDelete('${act.id}')">ยืนยันลบ</button>
+                   <button class="btn-base btn-secondary w-full py-1 text-xs" onclick="window.appFunctions.cancelDelete()">ยกเลิก</button>`
+                : `<button class="btn-base bg-red-50 text-red-600 hover:bg-red-100 shadow-none border border-red-200" onclick="window.appFunctions.requestDelete('${act.id}')"><i class="ph ph-trash"></i></button>`;
+            const actionCell = `<td rowspan="${rSpan}" class="text-center align-middle">${actionHtml}</td>`;
+
+            if (stds.length === 0) {
+                html += `<tr>${nameCell}<td colspan="5" class="text-slate-400 text-center">-</td>${actionCell}</tr>`;
+            } else {
+                stds.forEach((sId, idx) => {
+                    const isFirst = idx === 0;
+                    let tQty='-', tQual='-', rQty='-', rQual='-';
+                    
+                    const def = adminDefaults[sId];
+                    if (def) {
+                        tQty = def.quantity ? `${def.quantity}%` : '-';
+                        tQual = def.quality || '-';
+                    }
+                    
+                    const res = resultsData.find(r => r.result_goal_id === sId);
+                    if(res) {
+                        rQty = res.result_quantity_achieved ? `<span class="text-emerald-600 font-bold">${res.result_quantity_achieved}%</span>` : '-';
+                        rQual = `<span class="text-emerald-600 font-bold">${res.result_quality_achieved}</span>`;
+                    } else { rQty = rQual = '<span class="text-amber-500 text-xs font-bold">รอประเมิน</span>'; }
+
+                    html += `<tr>${isFirst ? nameCell : ''}
+                        <td class="text-sm font-medium text-slate-700">${escapeHtml(getStandardText(sId))}</td>
+                        <td class="text-center font-bold text-slate-600">${tQty}</td><td class="text-center font-bold text-slate-600">${tQual}</td>
+                        <td class="text-center">${rQty}</td><td class="text-center">${rQual}</td>
+                        ${isFirst ? actionCell : ''}
+                    </tr>`;
+                });
+            }
+        });
+        return html;
+    }
+
+    function exportToWord(targetProjectName) {
+        const records = allRecords.filter(r => r.type === 'activity' && r.project_name === targetProjectName);
+        if (records.length === 0) return showToast('ไม่มีข้อมูลสำหรับดาวน์โหลด', 'warning');
+        
+        const projectCodeDisplay = records.length > 0 && records[0].project_code ? `[${records[0].project_code}] ` : '';
+        const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset="utf-8"><style>body { font-family: 'TH Sarabun New', sans-serif; } table { border-collapse: collapse; width: 100%; margin-bottom: 20px; } th { background-color: #1e40af; color: white; border: 1px solid #000; padding: 5px; text-align: left; } td { border: 1px solid #000; padding: 5px; vertical-align: top; } .header-title { font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 5px; } .project-title { font-size: 16px; font-weight: bold; margin-top: 15px; margin-bottom: 5px; background-color: #e0f2fe; padding: 5px; border: 1px solid #ddd; }</style></head><body><div class="header-title">ระบบสรุปผลการดำเนินโครงการ/กิจกรรม แบบย่อ ของโรงเรียนแม่จันวิทยาคม</div><div class="project-title">โครงการ: ${escapeHtml(projectCodeDisplay + targetProjectName)}</div><table><thead><tr><th>กิจกรรม</th><th>มาตรฐาน</th><th>เป้าหมาย(ปริมาณ)</th><th>เป้าหมาย(คุณภาพ)</th><th>ผลสำเร็จ(ปริมาณ)</th><th>ผลสำเร็จ(คุณภาพ)</th></tr></thead><tbody>`;
+        
+        let body = '';
+        records.forEach(act => {
+            let stds = []; try { stds = JSON.parse(act.standards || '[]'); } catch(e){}
+            const rSpan = stds.length > 0 ? stds.length : 1;
+            const actCodeStr = act.activity_code ? `[${escapeHtml(act.activity_code)}] ` : '';
+            const nameCell = `<td rowspan="${rSpan}">${actCodeStr}${escapeHtml(act.activity_name)}</td>`;
+            if (stds.length === 0) body += `<tr>${nameCell}<td colspan="5">-</td></tr>`;
+            else {
+                stds.forEach((sId, idx) => {
+                    let tQty='-', tQual='-', rQty='-', rQual='-';
+                    
+                    const def = adminDefaults[sId];
+                    if(def) {
+                        tQty = def.quantity ? def.quantity + '%' : '-'; 
+                        tQual = def.quality || '-';
+                    }
+                    
+                    const res = resultsData.find(r => r.result_goal_id === sId);
+                    if(res) { 
+                        rQty = res.result_quantity_achieved ? res.result_quantity_achieved + '%' : '-'; 
+                        rQual = res.result_quality_achieved || '-'; 
+                    } else { 
+                        rQty = 'รอประเมิน'; rQual = 'รอประเมิน'; 
+                    }
+                    
+                    body += `<tr>${idx === 0 ? nameCell : ''}<td>${escapeHtml(getStandardText(sId))}</td><td>${tQty}</td><td>${tQual}</td><td>${rQty}</td><td>${rQual}</td></tr>`;
+                });
+            }
+        });
+        
+        const sourceHTML = header + body + `</tbody></table></body></html>`;
+        const fileDownload = document.createElement("a");
+        document.body.appendChild(fileDownload);
+        fileDownload.href = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+        fileDownload.download = `project_report_${targetProjectName.replace(/[^a-z0-9ก-๙]/gi, '_')}.doc`;
+        fileDownload.click();
+        document.body.removeChild(fileDownload);
+        showToast('ดาวน์โหลดไฟล์ Word สำเร็จ', 'success');
+    }
+
+    // =====================================================
+    // Logic - Admin & Sync
+    // =====================================================
+    function loginAdmin() {
+        document.getElementById('adminLoginModal').classList.remove('hidden');
+        document.getElementById('adminLoginModal').classList.add('flex');
+        document.getElementById('adminPasswordInput').value = '';
+        document.getElementById('adminPasswordInput').focus();
+    }
+    function closeAdminLogin() {
+        document.getElementById('adminLoginModal').classList.add('hidden');
+        document.getElementById('adminLoginModal').classList.remove('flex');
+    }
+    function submitAdminLogin() {
+        if (document.getElementById('adminPasswordInput').value === 'mwk1234') {
+            showToast('เข้าสู่ระบบ Admin สำเร็จ', 'success');
+            document.getElementById('tab-admin').classList.remove('hidden');
+            switchPage('admin'); closeAdminLogin(); renderAdminPage();
+        } else {
+            showToast('รหัสผ่านไม่ถูกต้อง', 'error');
+            document.getElementById('adminPasswordInput').classList.add('border-red-500');
+        }
+    }
+    
+    function renderAdminPage() {
+        document.getElementById('adminStandardsTableBody').innerHTML = STANDARDS.filter(s => !s.isMain).map(s => {
+            const def = adminDefaults[s.id] || {};
+            return `<tr class="hover:bg-slate-50"><td class="font-bold text-indigo-900 border-r border-slate-100"><div class="bg-indigo-50 inline-block px-2 py-1 rounded mb-1">${escapeHtml(s.id)}</div><div class="text-sm font-normal">${escapeHtml(s.text)}</div></td><td class="text-center font-bold text-blue-700 border-r border-slate-100">${def.quantity ? def.quantity + '%' : '-'}</td><td class="text-center font-bold text-amber-700 border-r border-slate-100">${def.quality || '-'}</td><td><div class="text-sm text-slate-600 whitespace-pre-wrap">${def.description || '-'}</div></td></tr>`;
+        }).join('');
+    }
+    function syncGoogleSheet() { loadAdminDefaultsFromSheet(true); }
+
+    // =====================================================
+    // Logic - Summary Dashboard
+    // =====================================================
+    function renderSchoolSummaryPage() {
+        const strFilter = document.getElementById('summary-filter-strategy').value;
+        const stdFilter = document.getElementById('summary-filter-standard').value;
+        
+        if (document.getElementById('summary-filter-strategy').options.length === 1) {
+            STRATEGIES.forEach(s => document.getElementById('summary-filter-strategy').innerHTML += `<option value="${s.id}">${s.text.substring(0, 50)}...</option>`);
+            STANDARDS.filter(s => !s.isMain).forEach(s => document.getElementById('summary-filter-standard').innerHTML += `<option value="${s.id}">${s.text.substring(0, 50)}...</option>`);
+        }
+
+        let totProj = new Set(), totAssess = 0, totAch = 0, html = '';
+        allRecords.filter(r => r.type === 'activity').forEach(act => {
+            let stds = [], strats = [];
+            try { stds = JSON.parse(act.standards || '[]'); strats = JSON.parse(act.strategies || '[]'); } catch(e){}
+            
+            if (strFilter && !strats.includes(strFilter)) return;
+            totProj.add(act.project_name || '-');
+            
+            stds.forEach(sId => {
+                if (stdFilter && sId !== stdFilter) return;
+                
+                const def = adminDefaults[sId];
+                const res = resultsData.find(r => r.result_goal_id === sId);
+                
+                if (def && res) {
+                    totAssess++;
+                    const tQty = parseFloat(def.quantity) || 0; 
+                    const rQty = parseFloat(res.result_quantity_achieved) || 0;
+                    const tQualIdx = QUALITY_LEVELS.indexOf(def.quality); 
+                    const rQualIdx = QUALITY_LEVELS.indexOf(res.result_quality_achieved);
+                    
+                    let status = '<span class="badge-status status-fail">ไม่บรรลุ</span>';
+                    if (rQualIdx !== -1 && rQualIdx <= tQualIdx) {
+                        if (rQty > tQty) { status = '<span class="badge-status status-exceed">สูงกว่าเป้า</span>'; totAch++; }
+                        else if (rQty >= tQty) { status = '<span class="badge-status status-success">ตามเป้า</span>'; totAch++; }
+                    }
+                    
+                    html += `<tr><td class="font-bold text-slate-800">${escapeHtml(act.project_name)}<div class="font-normal text-xs text-slate-500">${escapeHtml(act.activity_name)}</div></td><td class="text-sm text-slate-700">${escapeHtml(getStandardText(sId))}</td><td class="text-sm text-slate-500">ปริมาณ: ${tQty}%<br>คุณภาพ: ${def.quality || '-'}</td><td class="text-sm text-slate-500">ปริมาณ: ${rQty}%<br>คุณภาพ: ${res.result_quality_achieved}</td><td class="text-center">${status}</td></tr>`;
+                }
+            });
+        });
+
+        document.getElementById('stat-total-projects').textContent = totProj.size;
+        document.getElementById('stat-achieved-count').textContent = totAch;
+        document.getElementById('stat-success-rate').textContent = (totAssess > 0 ? Math.round((totAch / totAssess) * 100) : 0) + '%';
+        document.getElementById('summaryTableBody').innerHTML = html || `<tr><td colspan="5" class="text-center py-10 text-slate-400">ไม่พบข้อมูลตามเงื่อนไขที่เลือก</td></tr>`;
+    }
+
+    // =====================================================
+    // Bind Globals & Init
+    // =====================================================
+    Object.assign(window.appFunctions, { switchPage, addActivity, removeActivity, addObjective, removeObjective, saveAllActivities, requestDelete, cancelDelete, confirmDelete, saveAchievement, clearAllData, exportToWord, loginAdmin, closeAdminLogin, submitAdminLogin, syncGoogleSheet, finishSession, renderSchoolSummaryPage, copyText });
+
+    (function init() {
+      try {
+        loadFromLocalStorage();
+        if (!activities || activities.length === 0) addActivity();
+        loadAdminDefaultsFromSheet(false); // เรียกใช้ครั้งแรกเงียบๆ ผ่าน backend
+      } catch (e) { console.error("Init Error:", e); }
+    })();
+  </script>
+</body>
+</html>
